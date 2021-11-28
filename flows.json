@@ -1,0 +1,300 @@
+[
+    {
+        "id": "f6f2187d.f17ca8",
+        "type": "tab",
+        "label": "IoT - Actividad2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "3cc11d24.ff01a2",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "WARNING: please check you have started this container with a volume that is mounted to /data\\n otherwise any flow changes are lost when you redeploy or upgrade the container\\n (e.g. upgrade to a more recent node-red docker image).\\n  If you are using named volumes you can ignore this warning.\\n Double click or see info side panel to learn how to start Node-RED in Docker to save your work",
+        "info": "\nTo start docker with a bind mount volume (-v option), for example:\n\n```\ndocker run -it -p 1880:1880 -v /home/user/node_red_data:/data --name mynodered nodered/node-red\n```\n\nwhere `/home/user/node_red_data` is a directory on your host machine where you want to store your flows.\n\nIf you do not do this then you can experiment and redploy flows, but if you restart or upgrade the container the flows will be disconnected and lost. \n\nThey will still exist in a hidden data volume, which can be recovered using standard docker techniques, but that is much more complex than just starting with a named volume as described above.",
+        "x": 350,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "b6253f36e678e38f",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "topic": "",
+        "qos": "2",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "7cb266756bd61d6c",
+        "x": 650,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "3913b304250a92de",
+        "type": "http in",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "url": "/pub/:topic/:payload",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 230,
+        "y": 500,
+        "wires": [
+            [
+                "d31bacf385e1cc8d"
+            ]
+        ]
+    },
+    {
+        "id": "d31bacf385e1cc8d",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "create message",
+        "func": "msg.topic = msg.req.params.topic;\nmsg.payload = msg.req.params.payload;\nmsg.qos = 2;\nmsg.retain = false;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 500,
+        "wires": [
+            [
+                "58cd50b4a3e135d9",
+                "b6253f36e678e38f"
+            ]
+        ]
+    },
+    {
+        "id": "58cd50b4a3e135d9",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "create response",
+        "func": "msg.payload = {\n success: true,\n message: \"published \" +\n msg.req.params.topic +\n \"/\" +\n msg.req.params.payload\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 500,
+        "wires": [
+            [
+                "2b464152bb2e65aa"
+            ]
+        ]
+    },
+    {
+        "id": "2b464152bb2e65aa",
+        "type": "http response",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 830,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "e2a1de3791b0bafd",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "listen everything",
+        "topic": "#",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "7cb266756bd61d6c",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 100,
+        "y": 600,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b70a6c566b392a45",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 810,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "a080780aa80f17fa",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "15",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payloadType": "date",
+        "x": 330,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c58355ba0c9b9b48",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "create query",
+        "func": "// get microtime\nvar timestamp = new Date().getTime()/1000;\n// pad it with trailing zeroes\ntimestamp = timestamp.toString() + \"000\";\n// trim to exact length 10 + 1 + 3\ntimestamp = timestamp.substring(0, 14);\nvar strQuery = \"INSERT INTO thingData (topic, payload,timestamp, deleted) VALUES ('\" + escape(msg.topic) + \"','\" + escape(msg.payload) + \"','\" + timestamp + \"', 0);\";\nmsg.topic = strQuery;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 720,
+        "wires": [
+            [
+                "3aef286869203d65"
+            ]
+        ]
+    },
+    {
+        "id": "3aef286869203d65",
+        "type": "mysql",
+        "z": "f6f2187d.f17ca8",
+        "mydb": "72771825536c7753",
+        "name": "",
+        "x": 540,
+        "y": 720,
+        "wires": [
+            [
+                "89f5437d0f00ad57"
+            ]
+        ]
+    },
+    {
+        "id": "8c4fb545e060f159",
+        "type": "http in",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "url": "/get/:topic",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 700,
+        "wires": [
+            [
+                "c58355ba0c9b9b48"
+            ]
+        ]
+    },
+    {
+        "id": "4002f810e0117790",
+        "type": "http in",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "url": "/get/:topic and /get/:topic/last/:count",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 220,
+        "y": 800,
+        "wires": [
+            [
+                "c58355ba0c9b9b48"
+            ]
+        ]
+    },
+    {
+        "id": "89f5437d0f00ad57",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "prepare response",
+        "func": "// if required record count is not specified\n// set default to 1\nif(!msg.req.params.count)\n msg.req.params.count = 1;\n// build the sql query\nmsg.topic = \"SELECT id,topic,payload,timestamp \" +\n \"FROM thingData \" +\n \"WHERE topic='\" + escape(msg.req.params.topic) + \"' \" +\n \"AND deleted=0 \" +\n \"ORDER BY id DESC \" +\n \"LIMIT \" + msg.req.params.count + \";\";\n \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 730,
+        "y": 720,
+        "wires": [
+            [
+                "4549e919964125f6"
+            ]
+        ]
+    },
+    {
+        "id": "4549e919964125f6",
+        "type": "http response",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 890,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "7cb266756bd61d6c",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "172.19.0.1",
+        "port": "1883",
+        "clientid": "node-red",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "72771825536c7753",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "172.19.0.1",
+        "port": "6033",
+        "db": "tSeriesDB",
+        "tz": "",
+        "charset": "UTF8"
+    }
+]
