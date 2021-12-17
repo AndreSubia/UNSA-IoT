@@ -38,3 +38,20 @@ Ejecución de docker-compose
 | :-: | :-: |
 |  Node-RED | PHP MyAdmin |
 |  <img src="Capturas/NodeRED.png" height="250"  />   |  <img src="Capturas/PhpMyAdmin.png" height="250" />    |
+
+
+# Nota: 
+
+Si llegara a tener problemas con el acceso a la base de datos siga los siguientes pasos:
+
+1. docker exec -it <CONTAINER_ID>  mysql -uroot -p
+
+  #La contraseña por defecto es: admin1234
+
+2. CREATE USER 'admin'@'172.19.0.1' IDENTIFIED BY 'admin1234';
+
+3. GRANT ALL PRIVILEGES ON *.* TO 'admin'@'172.19.0.1' WITH GRANT OPTION;
+
+4. flush privileges;
+
+5. exit
