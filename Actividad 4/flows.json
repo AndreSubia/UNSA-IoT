@@ -1,0 +1,219 @@
+[
+    {
+        "id": "f6f2187d.f17ca8",
+        "type": "tab",
+        "label": "IoT - Actividad 4",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "3cc11d24.ff01a2",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "WARNING: please check you have started this container with a volume that is mounted to /data\\n otherwise any flow changes are lost when you redeploy or upgrade the container\\n (e.g. upgrade to a more recent node-red docker image).\\n  If you are using named volumes you can ignore this warning.\\n Double click or see info side panel to learn how to start Node-RED in Docker to save your work",
+        "info": "\nTo start docker with a bind mount volume (-v option), for example:\n\n```\ndocker run -it -p 1880:1880 -v /home/user/node_red_data:/data --name mynodered nodered/node-red\n```\n\nwhere `/home/user/node_red_data` is a directory on your host machine where you want to store your flows.\n\nIf you do not do this then you can experiment and redploy flows, but if you restart or upgrade the container the flows will be disconnected and lost. \n\nThey will still exist in a hidden data volume, which can be recovered using standard docker techniques, but that is much more complex than just starting with a named volume as described above.",
+        "x": 350,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "e2a1de3791b0bafd",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "listen everything",
+        "topic": "#",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "7cb266756bd61d6c",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 100,
+        "y": 720,
+        "wires": [
+            [
+                "61814aeb276dbd18",
+                "66adcd0e70970e82"
+            ]
+        ]
+    },
+    {
+        "id": "b70a6c566b392a45",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "3aef286869203d65",
+        "type": "mysql",
+        "z": "f6f2187d.f17ca8",
+        "mydb": "72771825536c7753",
+        "name": "",
+        "x": 460,
+        "y": 760,
+        "wires": [
+            [
+                "a0d1faa0a9ed6b7c"
+            ]
+        ]
+    },
+    {
+        "id": "66adcd0e70970e82",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "create query",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 290,
+        "y": 680,
+        "wires": [
+            [
+                "78e3d676a43ece04"
+            ]
+        ]
+    },
+    {
+        "id": "61814aeb276dbd18",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "search rules",
+        "func": "// Search rules\nmsg.topic = \"SELECT * FROM ruleTable\" +\n \" WHERE\" +\n \" ('\" + msg.topic + \"' LIKE topicPattern)\" +\n \" AND\" +\n \" ('\" + msg.payload + \"' LIKE payloadPattern)\" +\n \" AND active=1\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 290,
+        "y": 760,
+        "wires": [
+            [
+                "3aef286869203d65"
+            ]
+        ]
+    },
+    {
+        "id": "a0d1faa0a9ed6b7c",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "call webHook",
+        "func": "// Call webhook\nif(msg.payload.length !== 0)\n{\n for(var i = 0; i < msg.payload.length; i++)\n {\n msg.method = msg.payload[i].method;\n msg.url = msg.payload[i].webHook;\n node.send([msg]);\n }\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 760,
+        "wires": [
+            [
+                "f19426a6de673871"
+            ]
+        ]
+    },
+    {
+        "id": "78e3d676a43ece04",
+        "type": "mysql",
+        "z": "f6f2187d.f17ca8",
+        "mydb": "72771825536c7753",
+        "name": "",
+        "x": 460,
+        "y": 680,
+        "wires": [
+            [
+                "b70a6c566b392a45"
+            ]
+        ]
+    },
+    {
+        "id": "f19426a6de673871",
+        "type": "http request",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "www.in24hrs.xyz:1880/modifiedTime/rule-engine-works",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 830,
+        "y": 760,
+        "wires": [
+            [
+                "1347d86ea8df7b6b"
+            ]
+        ]
+    },
+    {
+        "id": "1347d86ea8df7b6b",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1010,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "7cb266756bd61d6c",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "172.19.0.1",
+        "port": "1883",
+        "clientid": "node-red",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "72771825536c7753",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "172.19.0.1",
+        "port": "6033",
+        "db": "tSeriesDB",
+        "tz": "",
+        "charset": "UTF8"
+    }
+]
