@@ -1,3 +1,5 @@
+#Build Your Own IoT Platform
+
 ## Instalación de Docker y Docker-Compose en Distribuciones basadas en Arch-Linux
 
 Para instalar docker sigue los siguientes paso: 
@@ -40,13 +42,11 @@ Ejecución de docker-compose
 |  <img src="Capturas/NodeRED.png" height="250"  />   |  <img src="Capturas/PhpMyAdmin.png" height="250" />    |
 
 
-# Nota: 
+### Nota: 
 
-Si llegara a tener problemas con el acceso a la base de datos siga los siguientes pasos:
+Si llegara a tener problemas con el acceso a la base de datos siga los siguientes pasos (La contraseña por defecto es: admin1234):
 
 1. docker exec -it <CONTAINER_ID>  mysql -uroot -p
-
-  #La contraseña por defecto es: admin1234
 
 2. CREATE USER 'admin'@'172.19.0.1' IDENTIFIED BY 'admin1234';
 
