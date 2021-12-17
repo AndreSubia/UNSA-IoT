@@ -30,7 +30,7 @@ Iniciar Docker:
 
 Ejecución de docker-compose
 
-1. cd /IoT-Actividad2
+1. cd /UNSA-IoT
 
 2. docker-compose up
 
