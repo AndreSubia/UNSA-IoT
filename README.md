@@ -22,7 +22,7 @@ Instalación de Docker-compose:
 
 Para clonar este proyecto:
 
-1. git clone https://github.com/senior-gato/IoT-Actividad2.git
+1. git clone https://github.com/senior-gato/UNSA-IoT.git
 
 Iniciar Docker: 
 
